@@ -1,5 +1,7 @@
+using Shapes;
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class SequenceManager : MonoBehaviour
@@ -13,6 +15,8 @@ public class SequenceManager : MonoBehaviour
     void Start()
     {
         if (sequences.Count == 0) Add(new SequenceAlpha());
+        //precaching
+        for (int i = 0; i < 6; i++) Icosphere.Generate(i);
     }
 
     void Update()
@@ -52,7 +56,7 @@ public class SequenceManager : MonoBehaviour
     void Add(Sequence sequence)
     {
         sequences.Add(sequence);
-        sequence.Load();
+        //sequence.Load();
     }
 
 }

@@ -20,36 +20,42 @@ public class Step
     public Step(Sequence parent)
     {
         seq = parent;
-        actions.Add(
-            new StepAction(
-                run: () =>
+        Add(() =>
                 {
                     Debug.Log("Action 1 launched");
-                    //seq.vert1 = spawn.vertex(position, color);      //Actor vert1 would be declared in Sequence
+                    //seq.Get("vertex1").Wake();
+                    seq.AddActor("Vertex1", Actor.Create<VertexActor>(null, new Vector3(1, 1, 1)));
                     //seq.vert.showTriplet = true;
                     //seq.vert.tripletSize = true;
                     //camera.aim(seq.vert1);
                 },
-                conditional: () => { return true; }
-            )
-        );
-        actions.Add(
-            new StepAction(
-                run: () =>
-                {
-                    Debug.Log("Action 2 launched");
-                    //seq.vertex1 = spawn.vertex(position, color);      //Actor vert1 would be declared in Sequence
-                    //seq.vert.showTriplet = true;
-                    //seq.vert.tripletSize = true;
-                    //camera.aim(seq.vert1);
-                },
-                conditional: () => { return true; }
-            )
-        );
+         (self) => { return self.Wait(1); });
 
+        Add(() =>
+        {
+            Debug.Log("Action 2 launched");
+            //seq.Get("Vertex1").transform.position = new Vector3(1, 1, 1);
+            seq.AddActor("Vertex2", VertexActor.Create<VertexActor>(null, new Vector3(0, 0, 0)));
+        },
+        (self) => { return self.Wait(1); });
+
+        Add(() =>
+        {
+            Debug.Log("Action 3 launched");
+            //seq.Get("Vertex1").transform.position = new Vector3(1, 1, 1);
+            seq.AddActor("Vertex3", VertexActor.Create<VertexActor>(null, new Vector3(-1, -1, -1)));
+        },
+         (self) => { return self.Wait(0); });
 
     }
 
+    public void Add(Action run, Func<StepAction, bool> conditional)
+    {
+        StepAction action = new StepAction();
+        actions.Add(action);
+        action.run = run;
+        actions[0].conditional = conditional;
+    }
 
     public void Run()
     {
@@ -82,9 +88,18 @@ public class Step
         if (index >= actions.Count)
         {
             isComplete = true;
+            isRunning = false;
             return;
         }
         actions[index].Run();
         frameCount++;
     }
+
+
+    public bool xWait(float timer)
+    {
+
+        return elapsedTime >= timer;
+    }
+
 }

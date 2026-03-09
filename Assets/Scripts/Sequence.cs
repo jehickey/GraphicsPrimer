@@ -16,13 +16,32 @@ public class Sequence
     public float elapsedTime = 0;
     public int frameCount;
 
+    [SerializeField]
+    private Dictionary<string, Actor> actors = new Dictionary<string, Actor>();
+
     public Sequence() {
         Name = "Unnamed Sequence";
     }
 
+    public Actor Get(string name)
+    {
+        if (!actors.ContainsKey(name)) return null;
+        return actors[name];
+    }
+
+    public Actor AddActor(string name, Actor actor, bool sleep=false)
+    {
+        if (!actor) return actor;
+        if (sleep) actor.Hide();
+        actors[name] = actor;
+        return actor;
+    }
+
+
     public virtual void Load()
     {
         steps.Clear();
+        Debug.Log("Sequence initializing");
     }
 
     public void Run()
@@ -32,6 +51,7 @@ public class Sequence
         if (frameCount == 0) {
             startTime = Time.time;
             isRunning = true;
+            Load();
             Debug.Log($"Starting sequence {Name}");
         }
         if (IsComplete) return;

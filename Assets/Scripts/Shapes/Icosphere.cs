@@ -5,11 +5,15 @@ namespace Shapes
 {
     public static class Icosphere
     {
+        private static Dictionary<int, Mesh> cache = new Dictionary<int, Mesh>();
+
         private const int MaxSubdivisions = 5;
 
         public static Mesh Generate(int subdivisions)
         {
             if (subdivisions > MaxSubdivisions) subdivisions = MaxSubdivisions;
+            if (cache.ContainsKey(subdivisions)) return cache[subdivisions];
+
             List<Vector3> verts = new List<Vector3>();
             List<int> tris = new List<int>();
 
@@ -31,6 +35,7 @@ namespace Shapes
             mesh.RecalculateNormals();
             mesh.RecalculateBounds();
 
+            cache[subdivisions] = mesh;
             return mesh;
         }
 

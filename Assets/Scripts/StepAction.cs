@@ -1,10 +1,11 @@
 using System;
 using UnityEngine;
 
+[Serializable]
 public class StepAction
 {
-    public readonly Action run;
-    public readonly Func<bool> conditional;    // optional
+    public Action run;
+    public Func<StepAction,bool> conditional;    // optional
     public bool runEveryFrame;
     public bool IsComplete;
     public bool isRunning;
@@ -13,8 +14,14 @@ public class StepAction
     public float elapsedTime;
 
 
+    public StepAction()
+    {
+        //this.run = () => { };
+        //this.conditional = () => { return true; };
 
-    public StepAction (Action run, Func<bool> conditional = null)
+    }
+
+    public StepAction (Action run, Func<StepAction,bool> conditional = null)
     {
         this.run = run;
         this.conditional = conditional;
@@ -34,6 +41,7 @@ public class StepAction
             isRunning = true;
             Debug.Log($"Starting action");
         }
+        elapsedTime = Time.time - startTime;
 
         //bool runComplete = run?.Invoke() ?? false;
         if (frameCount==0 || runEveryFrame) run();
@@ -47,8 +55,16 @@ public class StepAction
         }
 
         // If conditional exists, check it
-        if (conditional != null) IsComplete = conditional();
+        if (conditional != null) IsComplete = conditional(this);
+        if (IsComplete) isRunning = false;
 
         frameCount++;
     }
+
+    public bool Wait(float timer)
+    {
+
+        return elapsedTime >= timer;
+    }
+
 }
